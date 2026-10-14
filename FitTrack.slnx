@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FitTrack.ConsoleApp/FitTrack.ConsoleApp.csproj" />
+  </Folder>
+</Solution>
