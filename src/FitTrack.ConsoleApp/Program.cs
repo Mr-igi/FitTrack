@@ -1,49 +1,76 @@
-﻿using FitTrack.ConsoleApp.Models;
+﻿using FitTrack.ConsoleApp.Exceptions;
+using FitTrack.ConsoleApp.Models;
+using FitTrack.ConsoleApp.Services;
 
-var milos = new User
+var users = new List<User>
 {
-    Id = 1,
-    FirstName = "Milos",
-    LastName = "Petrovic",
-    Email = "milos@fittrack.com"
-};
-
-var trainer = new User
-{
-    Id = 2,
-    FirstName = "Marko",
-    LastName = "Jovanovic",
-    Email = "marko@fittrack.com",
-    Role = Role.Trainer
+    new() { Id = 1, FirstName = "Milos", LastName = "Petrovic", Email = "milos@fittrack.com" },
+    new() { Id = 2, FirstName = "Marko", LastName = "Jovanovic", Email = "marko@fittrack.com", Role = Role.Trainer },
+    new() { Id = 3, FirstName = "Ana", LastName = "Nikolic", Email = "ana@fittrack.com" },
+    new() { Id = 4, FirstName = "Petar", LastName = "Ilic", Email = "petar@fittrack.com" },
+    new() { Id = 5, FirstName = "Jovana", LastName = "Markovic", Email = "jovana@fittrack.com" }
 };
 
 var monthly = new MembershipPlan { Id = 1, Name = "Monthly", Price = 3000m, DurationInDays = 30 };
-var yearly = new MembershipPlan { Id = 2, Name = "Yearly", Price = 30000m, DurationInDays = 365 };
 
 var startDate = new DateOnly(2026, 10, 1);
-var membership = Membership.Create(milos.Id, monthly, startDate);
-
-Console.WriteLine($"{milos.FullName} ({milos.Role}) purchased: {monthly.Name}");
-Console.WriteLine($"Valid from {membership.StartDate} to {membership.EndDate}, paid {membership.PricePaid} RSD");
-
-var today = DateOnly.FromDateTime(DateTime.Today);
-Console.WriteLine($"Active on 2026-10-15: {membership.IsActiveOn(new DateOnly(2026, 10, 15))}");
-Console.WriteLine($"Active today ({today}): {membership.IsActiveOn(today)}");
-
-var session = new TrainingSession
+var memberships = new List<Membership>
 {
-    Id = 1,
-    TrainerId = trainer.Id,
-    Title = "CrossFit",
-    StartTime = new DateTime(2026, 10, 20, 18, 0, 0),
-    DurationMinutes = 60,
-    Location = "Room 2",
-    Capacity = 10
+    Membership.Create(1, monthly, startDate),
+    Membership.Create(4, monthly, startDate),
+    Membership.Create(5, monthly, startDate)
 };
 
-Console.WriteLine();
-Console.WriteLine($"Session: {session.Title}, trainer {trainer.FullName}");
-Console.WriteLine($"{session.StartTime:dd.MM.yyyy HH:mm} - {session.EndTime:HH:mm}, {session.Location}, max {session.Capacity} people");
+var sessions = new List<TrainingSession>
+{
+    new()
+    {
+        Id = 1,
+        TrainerId = 2,
+        Title = "CrossFit",
+        StartTime = new DateTime(2026, 10, 20, 18, 0, 0),
+        DurationMinutes = 60,
+        Location = "Room 2",
+        Capacity = 2
+    },
+    new()
+    {
+        Id = 2,
+        TrainerId = 2,
+        Title = "Yoga",
+        StartTime = new DateTime(2026, 10, 10, 9, 0, 0),
+        DurationMinutes = 45,
+        Location = "Room 1",
+        Capacity = 15
+    }
+};
 
-var booking = new Booking { Id = 1, UserId = milos.Id, TrainingSessionId = session.Id };
-Console.WriteLine($"{milos.FullName} booked session #{booking.TrainingSessionId} at {booking.BookedAt:HH:mm}");
+var bookings = new List<Booking>();
+
+var bookingService = new BookingService(users, memberships, sessions, bookings);
+var now = DateTime.Now;
+
+TryBook(1, 1, "Milos books CrossFit");
+TryBook(1, 1, "Milos books CrossFit again");
+TryBook(3, 1, "Ana books CrossFit");
+TryBook(2, 1, "Trainer Marko books CrossFit");
+TryBook(1, 2, "Milos books past Yoga session");
+TryBook(1, 99, "Milos books non-existing session");
+TryBook(4, 1, "Petar books CrossFit");
+TryBook(5, 1, "Jovana books CrossFit");
+
+Console.WriteLine();
+Console.WriteLine($"Total bookings: {bookings.Count}");
+
+void TryBook(int userId, int sessionId, string description)
+{
+    try
+    {
+        var booking = bookingService.BookSession(userId, sessionId, now);
+        Console.WriteLine($"[OK]   {description} -> booking #{booking.Id}");
+    }
+    catch (BookingException ex)
+    {
+        Console.WriteLine($"[FAIL] {description} -> {ex.Message}");
+    }
+}

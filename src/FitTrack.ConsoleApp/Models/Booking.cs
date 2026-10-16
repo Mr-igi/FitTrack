@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FitTrack.ConsoleApp.Models
 {
-    internal class Booking
+    public class Booking
     {
         public int Id { get; set; }
         public int UserId { get; set; }
