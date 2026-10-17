@@ -5,10 +5,14 @@ namespace FitTrack.ConsoleApp.Services;
 
 public class BookingService
 {
+    private const int CancellationDeadlineHours = 24;
+
     private readonly List<User> _users;
     private readonly List<Membership> _memberships;
     private readonly List<TrainingSession> _sessions;
     private readonly List<Booking> _bookings;
+
+    private int _nextBookingId = 1;
 
     public BookingService(
         List<User> users,
@@ -66,7 +70,7 @@ public class BookingService
 
         var booking = new Booking
         {
-            Id = _bookings.Count + 1,
+            Id = _nextBookingId++,
             UserId = userId,
             TrainingSessionId = sessionId,
             BookedAt = now
@@ -74,5 +78,30 @@ public class BookingService
 
         _bookings.Add(booking);
         return booking;
+    }
+
+    public void CancelBooking(int userId, int bookingId, DateTime now)
+    {
+        var booking = _bookings.FirstOrDefault(b => b.Id == bookingId)
+            ?? throw new BookingException($"Booking with id {bookingId} was not found.");
+
+        if (booking.UserId != userId)
+        {
+            throw new BookingException("You can only cancel your own bookings.");
+        }
+
+        var session = _sessions.FirstOrDefault(s => s.Id == booking.TrainingSessionId)
+            ?? throw new BookingException("The session for this booking was not found.");
+
+
+        TimeSpan timeUntilSession = session.StartTime - now;
+
+        if (timeUntilSession < TimeSpan.FromHours(CancellationDeadlineHours))
+        {
+            throw new BookingException(
+                $"Bookings can only be cancelled at least {CancellationDeadlineHours} hours before the session.");
+        }
+
+        _bookings.Remove(booking);
     }
 }
