@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FitTrack.ConsoleApp.Models
 {
-    public enum Role
+    public enum Role 
     {
         Member,
         Trainer,

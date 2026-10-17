@@ -1,24 +1,23 @@
 ﻿using FitTrack.ConsoleApp.Exceptions;
 using FitTrack.ConsoleApp.Models;
+using FitTrack.ConsoleApp.Repositories;
 
 namespace FitTrack.ConsoleApp.Services;
 
 public class BookingService
 {
-    private const int CancellationDeadlineHours = 24;
+    private const int CancellationDeadlineHours = 48;
 
-    private readonly List<User> _users;
-    private readonly List<Membership> _memberships;
-    private readonly List<TrainingSession> _sessions;
-    private readonly List<Booking> _bookings;
-
-    private int _nextBookingId = 1;
+    private readonly IRepository<User> _users;
+    private readonly IRepository<Membership> _memberships;
+    private readonly IRepository<TrainingSession> _sessions;
+    private readonly IRepository<Booking> _bookings;
 
     public BookingService(
-        List<User> users,
-        List<Membership> memberships,
-        List<TrainingSession> sessions,
-        List<Booking> bookings)
+        IRepository<User> users,
+        IRepository<Membership> memberships,
+        IRepository<TrainingSession> sessions,
+        IRepository<Booking> bookings)
     {
         _users = users;
         _memberships = memberships;
@@ -28,7 +27,7 @@ public class BookingService
 
     public Booking BookSession(int userId, int sessionId, DateTime now)
     {
-        var user = _users.FirstOrDefault(u => u.Id == userId)
+        var user = _users.GetById(userId)
             ?? throw new BookingException($"User with id {userId} was not found.");
 
         if (user.Role != Role.Member)
@@ -36,7 +35,7 @@ public class BookingService
             throw new BookingException("Only members can book training sessions.");
         }
 
-        var session = _sessions.FirstOrDefault(s => s.Id == sessionId)
+        var session = _sessions.GetById(sessionId)
             ?? throw new BookingException($"Training session with id {sessionId} was not found.");
 
         if (session.StartTime <= now)
@@ -61,7 +60,7 @@ public class BookingService
             throw new BookingException("You are already booked for this session.");
         }
 
-        int bookedCount = _bookings.Count(b => b.TrainingSessionId == sessionId);
+        int bookedCount = _bookings.Find(b => b.TrainingSessionId == sessionId).Count();
 
         if (bookedCount >= session.Capacity)
         {
@@ -70,19 +69,17 @@ public class BookingService
 
         var booking = new Booking
         {
-            Id = _nextBookingId++,
             UserId = userId,
             TrainingSessionId = sessionId,
             BookedAt = now
         };
 
-        _bookings.Add(booking);
-        return booking;
+        return _bookings.Add(booking);
     }
 
     public void CancelBooking(int userId, int bookingId, DateTime now)
     {
-        var booking = _bookings.FirstOrDefault(b => b.Id == bookingId)
+        var booking = _bookings.GetById(bookingId)
             ?? throw new BookingException($"Booking with id {bookingId} was not found.");
 
         if (booking.UserId != userId)
@@ -90,9 +87,8 @@ public class BookingService
             throw new BookingException("You can only cancel your own bookings.");
         }
 
-        var session = _sessions.FirstOrDefault(s => s.Id == booking.TrainingSessionId)
+        var session = _sessions.GetById(booking.TrainingSessionId)
             ?? throw new BookingException("The session for this booking was not found.");
-
 
         TimeSpan timeUntilSession = session.StartTime - now;
 

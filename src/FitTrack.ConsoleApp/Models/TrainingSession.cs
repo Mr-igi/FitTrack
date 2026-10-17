@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FitTrack.ConsoleApp.Models
 {
-    public class TrainingSession
+    public class TrainingSession : IEntity
     {
         public int Id { get; set; }
 
