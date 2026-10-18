@@ -55,6 +55,7 @@ var boxing = sessions.Add(new TrainingSession
 
 var bookingService = new BookingService(users, memberships, sessions, bookings);
 var membershipService = new MembershipService(users, plans, memberships);
+var statisticsService = new StatisticsService(users, plans, memberships, sessions, bookings);
 
 var now = new DateTime(2026, 10, 17, 12, 0, 0);
 var today = DateOnly.FromDateTime(now);
@@ -90,6 +91,39 @@ TryPurchase(marko.Id, monthly.Id, today, "Trainer Marko buys Monthly");
 TryPurchase(99, monthly.Id, today, "Non-existing user buys Monthly");
 TryPurchase(petar.Id, 99, today, "Petar buys non-existing plan");
 TryPurchase(petar.Id, monthly.Id, new DateOnly(2026, 10, 1), "Petar buys Monthly starting in the past");
+
+Console.WriteLine();
+Console.WriteLine("--- Statistics ---");
+Console.WriteLine($"Active members on {today:yyyy-MM-dd}: {statisticsService.CountActiveMembers(today)}");
+Console.WriteLine($"Total revenue: {statisticsService.GetTotalRevenue()} RSD");
+
+Console.WriteLine();
+Console.WriteLine("Revenue by plan:");
+foreach (var row in statisticsService.GetRevenueByPlan())
+{
+    Console.WriteLine($"  {row.PlanName}: {row.Count} sold, {row.Total} RSD");
+}
+
+Console.WriteLine();
+Console.WriteLine("Session occupancy:");
+foreach (var row in statisticsService.GetSessionOccupancy())
+{
+    Console.WriteLine($"  {row.Title}: {row.Booked}/{row.Capacity}");
+}
+
+Console.WriteLine();
+Console.WriteLine("Memberships expiring in the next 14 days:");
+foreach (var row in statisticsService.GetExpiringSoon(today, 14))
+{
+    Console.WriteLine($"  {row.FullName} - {row.EndDate:yyyy-MM-dd}");
+}
+
+Console.WriteLine();
+Console.WriteLine("Members without bookings:");
+foreach (var name in statisticsService.GetMembersWithoutBookings())
+{
+    Console.WriteLine($"  {name}");
+}
 
 Console.WriteLine();
 Console.WriteLine($"Total bookings: {bookings.GetAll().Count()}");
