@@ -16,6 +16,7 @@ var petar = users.Add(new User { FirstName = "Petar", LastName = "Ilic", Email =
 var jovana = users.Add(new User { FirstName = "Jovana", LastName = "Markovic", Email = "jovana@fittrack.com" });
 
 var monthly = plans.Add(new MembershipPlan { Name = "Monthly", Price = 3000m, DurationInDays = 30 });
+var yearly = plans.Add(new MembershipPlan { Name = "Yearly", Price = 30000m, DurationInDays = 365 });
 
 var startDate = new DateOnly(2026, 10, 1);
 memberships.Add(Membership.Create(milos.Id, monthly, startDate));
@@ -53,8 +54,10 @@ var boxing = sessions.Add(new TrainingSession
 });
 
 var bookingService = new BookingService(users, memberships, sessions, bookings);
+var membershipService = new MembershipService(users, plans, memberships);
 
 var now = new DateTime(2026, 10, 17, 12, 0, 0);
+var today = DateOnly.FromDateTime(now);
 
 Console.WriteLine("--- Booking ---");
 TryBook(milos.Id, crossFit.Id, "Milos books CrossFit");
@@ -79,7 +82,18 @@ Console.WriteLine("--- After cancelling ---");
 TryBook(jovana.Id, crossFit.Id, "Jovana books CrossFit again");
 
 Console.WriteLine();
+Console.WriteLine("--- Purchasing memberships ---");
+TryPurchase(ana.Id, monthly.Id, today, "Ana buys Monthly (no existing membership)");
+TryPurchase(milos.Id, monthly.Id, today, "Milos buys Monthly (has one until 2026-10-30)");
+TryPurchase(milos.Id, yearly.Id, today, "Milos buys Yearly (stacks after the new one)");
+TryPurchase(marko.Id, monthly.Id, today, "Trainer Marko buys Monthly");
+TryPurchase(99, monthly.Id, today, "Non-existing user buys Monthly");
+TryPurchase(petar.Id, 99, today, "Petar buys non-existing plan");
+TryPurchase(petar.Id, monthly.Id, new DateOnly(2026, 10, 1), "Petar buys Monthly starting in the past");
+
+Console.WriteLine();
 Console.WriteLine($"Total bookings: {bookings.GetAll().Count()}");
+Console.WriteLine($"Total memberships: {memberships.GetAll().Count()}");
 
 void TryBook(int userId, int sessionId, string description)
 {
@@ -102,6 +116,19 @@ void TryCancel(int userId, int bookingId, string description)
         Console.WriteLine($"[OK]   {description}");
     }
     catch (BookingException ex)
+    {
+        Console.WriteLine($"[FAIL] {description} -> {ex.Message}");
+    }
+}
+
+void TryPurchase(int userId, int planId, DateOnly start, string description)
+{
+    try
+    {
+        var m = membershipService.Purchase(userId, planId, start, today);
+        Console.WriteLine($"[OK]   {description} -> {m.StartDate:yyyy-MM-dd} to {m.EndDate:yyyy-MM-dd}, paid {m.PricePaid} RSD");
+    }
+    catch (MembershipException ex)
     {
         Console.WriteLine($"[FAIL] {description} -> {ex.Message}");
     }
