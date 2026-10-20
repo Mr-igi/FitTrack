@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FitTrack.ConsoleApp.Models
 {
-    public class Membership : IEntity 
+    public class Membership : IEntity
     {
         public int Id { get; set; }
 
@@ -15,6 +15,8 @@ namespace FitTrack.ConsoleApp.Models
 
         public DateOnly StartDate { get; set; }
         public DateOnly EndDate { get; set; }
+
+        public bool IsMarkedExpired { get; set; }
 
         public bool IsActiveOn(DateOnly date)
         {
