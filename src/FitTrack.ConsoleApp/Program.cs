@@ -57,6 +57,12 @@ var bookingService = new BookingService(users, memberships, sessions, bookings);
 var membershipService = new MembershipService(users, plans, memberships);
 var statisticsService = new StatisticsService(users, plans, memberships, sessions, bookings);
 
+var notificationService = new NotificationService(users);
+
+bookingService.SessionFilled += notificationService.OnSessionFilled;
+
+membershipService.MembershipExpired += notificationService.OnMembershipExpired;
+
 var now = new DateTime(2026, 10, 17, 12, 0, 0);
 var today = DateOnly.FromDateTime(now);
 
@@ -128,6 +134,23 @@ foreach (var name in statisticsService.GetMembersWithoutBookings())
 Console.WriteLine();
 Console.WriteLine($"Total bookings: {bookings.GetAll().Count()}");
 Console.WriteLine($"Total memberships: {memberships.GetAll().Count()}");
+
+Console.WriteLine();
+Console.WriteLine("--- Expiration check ---");
+
+Console.WriteLine("Checking on 2026-10-17...");
+int markedToday = membershipService.MarkExpiredMemberships(today);
+Console.WriteLine($"Marked {markedToday} membership(s) as expired.");
+
+var later = new DateOnly(2026, 11, 5);
+
+Console.WriteLine($"Checking on {later:yyyy-MM-dd}...");
+int markedLater = membershipService.MarkExpiredMemberships(later);
+Console.WriteLine($"Marked {markedLater} membership(s) as expired.");
+
+Console.WriteLine($"Checking on {later:yyyy-MM-dd} again...");
+int markedAgain = membershipService.MarkExpiredMemberships(later);
+Console.WriteLine($"Marked {markedAgain} membership(s) as expired.");
 
 void TryBook(int userId, int sessionId, string description)
 {

@@ -10,6 +10,8 @@ public class MembershipService
     private readonly IRepository<MembershipPlan> _plans;
     private readonly IRepository<Membership> _memberships;
 
+    public event Action<Membership>? MembershipExpired;
+
     public MembershipService(
         IRepository<User> users,
         IRepository<MembershipPlan> plans,
@@ -49,5 +51,26 @@ public class MembershipService
 
         var membership = Membership.Create(userId, plan, startDate);
         return _memberships.Add(membership);
+    }
+
+    public int MarkExpiredMemberships(DateOnly today)
+    {
+        var expired = _memberships
+            .Find(m => m.EndDate < today && !m.IsMarkedExpired)
+            .ToList();
+
+        foreach (var membership in expired)
+        {
+            membership.IsMarkedExpired = true;
+            bool hasLaterMembership = _memberships.Any(other =>
+                other.UserId == membership.UserId && other.EndDate > membership.EndDate);
+
+            if (!hasLaterMembership)
+            {
+                MembershipExpired?.Invoke(membership);
+            }
+        }
+
+        return expired.Count;
     }
 }

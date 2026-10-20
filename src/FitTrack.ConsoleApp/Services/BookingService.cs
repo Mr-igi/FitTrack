@@ -13,6 +13,8 @@ public class BookingService
     private readonly IRepository<TrainingSession> _sessions;
     private readonly IRepository<Booking> _bookings;
 
+    public event Action<TrainingSession>? SessionFilled;
+
     public BookingService(
         IRepository<User> users,
         IRepository<Membership> memberships,
@@ -74,7 +76,14 @@ public class BookingService
             BookedAt = now
         };
 
-        return _bookings.Add(booking);
+        var savedBooking = _bookings.Add(booking);
+
+        if (bookedCount + 1 == session.Capacity)
+        {
+            SessionFilled?.Invoke(session);
+        }
+
+        return savedBooking;
     }
 
     public void CancelBooking(int userId, int bookingId, DateTime now)
