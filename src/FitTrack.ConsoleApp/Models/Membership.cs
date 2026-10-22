@@ -28,7 +28,7 @@ namespace FitTrack.ConsoleApp.Models
             {
                 UserId = userId,
                 MembershipPlanId = plan.Id,
-                PricePaid = plan.Price,
+                PricePaid = plan.GetFinalPrice(),
                 StartDate = startDate,
                 EndDate = startDate.AddDays(plan.DurationInDays - 1)
             };

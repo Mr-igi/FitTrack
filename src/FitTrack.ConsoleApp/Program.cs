@@ -16,6 +16,7 @@ var petar = users.Add(new User { FirstName = "Petar", LastName = "Ilic", Email =
 var jovana = users.Add(new User { FirstName = "Jovana", LastName = "Markovic", Email = "jovana@fittrack.com" });
 
 var monthly = plans.Add(new MembershipPlan { Name = "Monthly", Price = 3000m, DurationInDays = 30 });
+var quarterly = plans.Add(new MembershipPlan { Name = "Quarterly", Price = 8000m, DurationInDays = 90 });
 var yearly = plans.Add(new MembershipPlan { Name = "Yearly", Price = 30000m, DurationInDays = 365 });
 
 var startDate = new DateOnly(2026, 10, 1);
@@ -58,9 +59,7 @@ var membershipService = new MembershipService(users, plans, memberships);
 var statisticsService = new StatisticsService(users, plans, memberships, sessions, bookings);
 
 var notificationService = new NotificationService(users);
-
 bookingService.SessionFilled += notificationService.OnSessionFilled;
-
 membershipService.MembershipExpired += notificationService.OnMembershipExpired;
 
 var now = new DateTime(2026, 10, 17, 12, 0, 0);
@@ -87,6 +86,13 @@ TryCancel(milos.Id, 1, "Milos cancels CrossFit");
 Console.WriteLine();
 Console.WriteLine("--- After cancelling ---");
 TryBook(jovana.Id, crossFit.Id, "Jovana books CrossFit again");
+
+Console.WriteLine();
+Console.WriteLine("--- Plan prices ---");
+foreach (var plan in plans.GetAll())
+{
+    Console.WriteLine($"{plan.Name}: {plan.Price} RSD, discount {plan.GetDiscountPercent()}%, final price {plan.GetFinalPrice()} RSD");
+}
 
 Console.WriteLine();
 Console.WriteLine("--- Purchasing memberships ---");
@@ -151,6 +157,17 @@ Console.WriteLine($"Marked {markedLater} membership(s) as expired.");
 Console.WriteLine($"Checking on {later:yyyy-MM-dd} again...");
 int markedAgain = membershipService.MarkExpiredMemberships(later);
 Console.WriteLine($"Marked {markedAgain} membership(s) as expired.");
+
+Console.WriteLine();
+Console.WriteLine("--- Records demo ---");
+
+var rowA = new PlanRevenue("Monthly", 5, 15000m);
+var rowB = new PlanRevenue("Monthly", 5, 15000m);
+Console.WriteLine($"rowA == rowB: {rowA == rowB}");
+
+var rowC = rowA with { Count = 6 };
+Console.WriteLine($"rowA == rowC: {rowA == rowC}");
+Console.WriteLine(rowC);
 
 void TryBook(int userId, int sessionId, string description)
 {
