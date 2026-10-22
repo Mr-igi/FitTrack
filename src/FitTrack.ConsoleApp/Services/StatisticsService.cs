@@ -36,28 +36,28 @@ public class StatisticsService
     {
         return _memberships.GetAll().Sum(m => m.PricePaid);
     }
-    public List<(string PlanName, int Count, decimal Total)> GetRevenueByPlan()
+    public List<PlanRevenue> GetRevenueByPlan()
     {
         return _memberships.GetAll()
             .GroupBy(m => m.MembershipPlanId)
-            .Select(g => (
-                PlanName: _plans.GetById(g.Key)?.Name ?? "Unknown",
-                Count: g.Count(),
-                Total: g.Sum(m => m.PricePaid)))
+            .Select(g => new PlanRevenue(
+                _plans.GetById(g.Key)?.Name ?? "Unknown",
+                g.Count(),
+                g.Sum(m => m.PricePaid)))
             .OrderByDescending(x => x.Total)
             .ToList();
     }
-    public List<(string Title, int Booked, int Capacity)> GetSessionOccupancy()
+    public List<SessionOccupancy> GetSessionOccupancy()
     {
         return _sessions.GetAll()
-            .Select(s => (
-                Title: s.Title,
-                Booked: _bookings.Find(b => b.TrainingSessionId == s.Id).Count(),
-                Capacity: s.Capacity))
+            .Select(s => new SessionOccupancy(
+                s.Title,
+                _bookings.Find(b => b.TrainingSessionId == s.Id).Count(),
+                s.Capacity))
             .OrderByDescending(x => x.Booked)
             .ToList();
     }
-    public List<(string FullName, DateOnly EndDate)> GetExpiringSoon(DateOnly today, int days)
+    public List<ExpiringMembership> GetExpiringSoon(DateOnly today, int days)
     {
         var limit = today.AddDays(days);
 
@@ -66,9 +66,9 @@ public class StatisticsService
             .Select(g => (UserId: g.Key, EndDate: g.Max(m => m.EndDate)))
             .Where(x => x.EndDate >= today && x.EndDate <= limit)
             .OrderBy(x => x.EndDate)
-            .Select(x => (
-                FullName: _users.GetById(x.UserId)?.FullName ?? "Unknown",
-                EndDate: x.EndDate))
+            .Select(x => new ExpiringMembership(
+                _users.GetById(x.UserId)?.FullName ?? "Unknown",
+                x.EndDate))
             .ToList();
     }
     public List<string> GetMembersWithoutBookings()

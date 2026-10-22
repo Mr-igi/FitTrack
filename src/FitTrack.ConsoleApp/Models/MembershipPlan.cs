@@ -12,5 +12,14 @@ namespace FitTrack.ConsoleApp.Models
         public decimal Price { get; set; }
 
         public int DurationInDays { get; set; }
+
+        public int GetDiscountPercent() => DurationInDays switch
+        {
+            >= 365 => 20,
+            >= 90 => 10,
+            _ => 0
+        };
+
+        public decimal GetFinalPrice() => Price - Price * GetDiscountPercent() / 100;
     }
 }
