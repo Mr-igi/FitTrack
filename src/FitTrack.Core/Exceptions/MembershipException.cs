@@ -1,4 +1,4 @@
-﻿namespace FitTrack.ConsoleApp.Exceptions;
+﻿namespace FitTrack.Core.Exceptions;
 
 public class MembershipException : Exception
 {

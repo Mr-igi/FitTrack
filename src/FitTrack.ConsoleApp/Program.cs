@@ -1,6 +1,7 @@
-﻿using FitTrack.ConsoleApp.Exceptions;
-using FitTrack.ConsoleApp.Models;
-using FitTrack.ConsoleApp.Repositories;
+﻿using FitTrack.Core.Exceptions;
+using FitTrack.Core.Models;
+using FitTrack.Core.Repositories;
+using FitTrack.Core.Services;
 using FitTrack.ConsoleApp.Services;
 
 var users = new InMemoryRepository<User>();

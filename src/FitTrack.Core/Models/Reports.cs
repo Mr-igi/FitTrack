@@ -1,4 +1,4 @@
-﻿namespace FitTrack.ConsoleApp.Models;
+﻿namespace FitTrack.Core.Models;
 
 public record PlanRevenue(string PlanName, int Count, decimal Total);
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FitTrack.ConsoleApp.Models
+namespace FitTrack.Core.Models
 {
     public class User : IEntity
     {

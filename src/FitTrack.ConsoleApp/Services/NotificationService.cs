@@ -1,5 +1,5 @@
-﻿using FitTrack.ConsoleApp.Models;
-using FitTrack.ConsoleApp.Repositories;
+﻿using FitTrack.Core.Models;
+using FitTrack.Core.Repositories;
 
 namespace FitTrack.ConsoleApp.Services;
 

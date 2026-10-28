@@ -1,6 +1,6 @@
-﻿using FitTrack.ConsoleApp.Models;
+﻿using FitTrack.Core.Models;
 
-namespace FitTrack.ConsoleApp.Repositories;
+namespace FitTrack.Core.Repositories;
 
 public interface IRepository<T> where T : class, IEntity
 {
