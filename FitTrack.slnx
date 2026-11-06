@@ -3,4 +3,7 @@
     <Project Path="src/FitTrack.ConsoleApp/FitTrack.ConsoleApp.csproj" />
     <Project Path="src/FitTrack.Core/FitTrack.Core.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FitTrack.Tests/FitTrack.Tests.csproj" />
+  </Folder>
 </Solution>
