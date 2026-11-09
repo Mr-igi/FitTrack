@@ -10,11 +10,13 @@ var memberships = new InMemoryRepository<Membership>();
 var sessions = new InMemoryRepository<TrainingSession>();
 var bookings = new InMemoryRepository<Booking>();
 
-var milos = users.Add(new User { FirstName = "Milos", LastName = "Petrovic", Email = "milos@fittrack.com" });
-var marko = users.Add(new User { FirstName = "Marko", LastName = "Jovanovic", Email = "marko@fittrack.com", Role = Role.Trainer });
-var ana = users.Add(new User { FirstName = "Ana", LastName = "Nikolic", Email = "ana@fittrack.com" });
-var petar = users.Add(new User { FirstName = "Petar", LastName = "Ilic", Email = "petar@fittrack.com" });
-var jovana = users.Add(new User { FirstName = "Jovana", LastName = "Markovic", Email = "jovana@fittrack.com" });
+var registeredAt = new DateTime(2026, 10, 1);
+
+var milos = users.Add(new User { FirstName = "Milos", LastName = "Petrovic", Email = "milos@fittrack.com", CreatedAt = registeredAt });
+var marko = users.Add(new User { FirstName = "Marko", LastName = "Jovanovic", Email = "marko@fittrack.com", Role = Role.Trainer, CreatedAt = registeredAt });
+var ana = users.Add(new User { FirstName = "Ana", LastName = "Nikolic", Email = "ana@fittrack.com", CreatedAt = registeredAt });
+var petar = users.Add(new User { FirstName = "Petar", LastName = "Ilic", Email = "petar@fittrack.com", CreatedAt = registeredAt });
+var jovana = users.Add(new User { FirstName = "Jovana", LastName = "Markovic", Email = "jovana@fittrack.com", CreatedAt = registeredAt });
 
 var monthly = plans.Add(new MembershipPlan { Name = "Monthly", Price = 3000m, DurationInDays = 30 });
 var quarterly = plans.Add(new MembershipPlan { Name = "Quarterly", Price = 8000m, DurationInDays = 90 });

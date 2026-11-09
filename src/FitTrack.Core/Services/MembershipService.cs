@@ -35,6 +35,12 @@ public class MembershipService
         var plan = _plans.GetById(planId)
             ?? throw new MembershipException($"Membership plan with id {planId} was not found.");
 
+        if (plan.DurationInDays <= 0)
+        {
+
+            throw new MembershipException("Membership plan duration must be at least one day.");
+        }
+
         if (startDate < today)
         {
             throw new MembershipException("Start date cannot be in the past.");
@@ -62,6 +68,7 @@ public class MembershipService
         foreach (var membership in expired)
         {
             membership.IsMarkedExpired = true;
+
             bool hasLaterMembership = _memberships.Any(other =>
                 other.UserId == membership.UserId && other.EndDate > membership.EndDate);
 

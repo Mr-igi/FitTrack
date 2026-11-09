@@ -28,7 +28,8 @@ public class CancelBookingTests
         {
             FirstName = "Test",
             LastName = "User",
-            Email = "test@fittrack.com"
+            Email = "test@fittrack.com",
+            CreatedAt = new DateTime(2026, 10, 1)
         });
 
         _memberships.Add(new Membership

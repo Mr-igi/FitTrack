@@ -28,7 +28,8 @@ public class MembershipServiceTests
             FirstName = "Test",
             LastName = "User",
             Email = "test@fittrack.com",
-            Role = role
+            Role = role,
+            CreatedAt = new DateTime(2026, 10, 1)
         });
     }
 
@@ -205,5 +206,20 @@ public class MembershipServiceTests
         var membership = _service.Purchase(buyer.Id, plan.Id, _today, _today);
 
         Assert.Equal(_today, membership.StartDate);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-30)]
+    public void Purchase_WhenPlanDurationIsNotPositive_Throws(int durationInDays)
+    {
+        var member = AddUser();
+        var plan = AddPlan(days: durationInDays);
+
+        var ex = Assert.Throws<MembershipException>(() => _service.Purchase(member.Id, plan.Id, _today, _today));
+
+        Assert.Equal("Membership plan duration must be at least one day.", ex.Message);
+
+        Assert.Empty(_memberships.GetAll());
     }
 }
