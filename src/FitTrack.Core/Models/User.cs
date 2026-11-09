@@ -14,7 +14,7 @@ namespace FitTrack.Core.Models
 
         public Role Role { get; set; } = Role.Member;
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public required DateTime CreatedAt { get; set; }
 
         public string FullName => $"{FirstName} {LastName}";
     }

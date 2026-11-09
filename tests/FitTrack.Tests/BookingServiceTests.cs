@@ -29,7 +29,8 @@ public class BookingServiceTests
             FirstName = "Test",
             LastName = "User",
             Email = "test@fittrack.com",
-            Role = role
+            Role = role,
+            CreatedAt = new DateTime(2026, 10, 1)
         });
     }
 

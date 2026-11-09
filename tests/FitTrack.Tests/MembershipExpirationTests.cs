@@ -26,7 +26,8 @@ public class MembershipExpirationTests
         {
             FirstName = "Test",
             LastName = "User",
-            Email = "test@fittrack.com"
+            Email = "test@fittrack.com",
+            CreatedAt = new DateTime(2026, 10, 1)
         });
     }
 

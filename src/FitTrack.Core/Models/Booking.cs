@@ -10,6 +10,6 @@ namespace FitTrack.Core.Models
         public int UserId { get; set; }
         public int TrainingSessionId { get; set; }
 
-        public DateTime BookedAt { get; set; } = DateTime.Now;
+        public required DateTime BookedAt { get; set; }
     }
 }

@@ -30,6 +30,7 @@ public class StatisticsServiceTests
             FirstName = firstName,
             LastName = "Test",
             Email = $"{firstName.ToLower()}@fittrack.com",
+            CreatedAt = new DateTime(2026, 10, 1),
             Role = role
         });
     }
