@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FitTrack.Api.Data;
 using FitTrack.Core.Repositories;
 using FitTrack.Core.Services;
@@ -5,9 +6,13 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
+
+builder.Services.AddSingleton(TimeProvider.System);
 
 builder.Services.AddSingleton(typeof(IRepository<>), typeof(InMemoryRepository<>));
 
