@@ -25,25 +25,23 @@ public class MembershipService
     public Membership Purchase(int userId, int planId, DateOnly startDate, DateOnly today)
     {
         var user = _users.GetById(userId)
-            ?? throw new MembershipException($"User with id {userId} was not found.");
-
+            ?? throw new MembershipException($"User with id {userId} was not found.", ErrorKind.NotFound);
         if (user.Role != Role.Member)
         {
-            throw new MembershipException("Only members can purchase a membership.");
+            throw new MembershipException("Only members can purchase a membership.", ErrorKind.Forbidden);
         }
 
         var plan = _plans.GetById(planId)
-            ?? throw new MembershipException($"Membership plan with id {planId} was not found.");
+            ?? throw new MembershipException($"Membership plan with id {planId} was not found.", ErrorKind.NotFound);
 
         if (plan.DurationInDays <= 0)
         {
-
-            throw new MembershipException("Membership plan duration must be at least one day.");
+            throw new MembershipException("Membership plan duration must be at least one day.", ErrorKind.Conflict);
         }
 
         if (startDate < today)
         {
-            throw new MembershipException("Start date cannot be in the past.");
+            throw new MembershipException("Start date cannot be in the past.", ErrorKind.Invalid);
         }
 
         var existing = _memberships
