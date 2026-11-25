@@ -2,7 +2,10 @@
 
 public class MembershipException : Exception
 {
-    public MembershipException(string message) : base(message)
+    public ErrorKind Kind { get; }
+
+    public MembershipException(string message, ErrorKind kind) : base(message)
     {
+        Kind = kind;
     }
 }

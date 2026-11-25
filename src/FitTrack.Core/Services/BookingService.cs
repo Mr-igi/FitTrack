@@ -30,19 +30,19 @@ public class BookingService
     public Booking BookSession(int userId, int sessionId, DateTime now)
     {
         var user = _users.GetById(userId)
-            ?? throw new BookingException($"User with id {userId} was not found.");
+            ?? throw new BookingException($"User with id {userId} was not found.", ErrorKind.NotFound);
 
         if (user.Role != Role.Member)
         {
-            throw new BookingException("Only members can book training sessions.");
+            throw new BookingException("Only members can book training sessions.", ErrorKind.Forbidden);
         }
 
         var session = _sessions.GetById(sessionId)
-            ?? throw new BookingException($"Training session with id {sessionId} was not found.");
+            ?? throw new BookingException($"Training session with id {sessionId} was not found.", ErrorKind.NotFound);
 
         if (session.StartTime <= now)
         {
-            throw new BookingException("Cannot book a session that has already started.");
+            throw new BookingException("Cannot book a session that has already started.", ErrorKind.Conflict);
         }
 
         var sessionDate = DateOnly.FromDateTime(session.StartTime);
@@ -51,7 +51,7 @@ public class BookingService
 
         if (!hasActiveMembership)
         {
-            throw new BookingException("You do not have an active membership on the session date.");
+            throw new BookingException("You do not have an active membership on the session date.", ErrorKind.Conflict);
         }
 
         bool alreadyBooked = _bookings.Any(b =>
@@ -59,14 +59,14 @@ public class BookingService
 
         if (alreadyBooked)
         {
-            throw new BookingException("You are already booked for this session.");
+            throw new BookingException("You are already booked for this session.", ErrorKind.Conflict);
         }
 
         int bookedCount = _bookings.Find(b => b.TrainingSessionId == sessionId).Count();
 
         if (bookedCount >= session.Capacity)
         {
-            throw new BookingException("This session is full.");
+            throw new BookingException("This session is full.", ErrorKind.Conflict);
         }
 
         var booking = new Booking
@@ -89,22 +89,23 @@ public class BookingService
     public void CancelBooking(int userId, int bookingId, DateTime now)
     {
         var booking = _bookings.GetById(bookingId)
-            ?? throw new BookingException($"Booking with id {bookingId} was not found.");
+            ?? throw new BookingException($"Booking with id {bookingId} was not found.", ErrorKind.NotFound);
 
         if (booking.UserId != userId)
         {
-            throw new BookingException("You can only cancel your own bookings.");
+            throw new BookingException("You can only cancel your own bookings.", ErrorKind.Forbidden);
         }
 
         var session = _sessions.GetById(booking.TrainingSessionId)
-            ?? throw new BookingException("The session for this booking was not found.");
+            ?? throw new BookingException("The session for this booking was not found.", ErrorKind.NotFound);
 
         TimeSpan timeUntilSession = session.StartTime - now;
 
         if (timeUntilSession < TimeSpan.FromHours(CancellationDeadlineHours))
         {
             throw new BookingException(
-                $"Bookings can only be cancelled at least {CancellationDeadlineHours} hours before the session.");
+                $"Bookings can only be cancelled at least {CancellationDeadlineHours} hours before the session.",
+                ErrorKind.Conflict);
         }
 
         _bookings.Remove(booking);

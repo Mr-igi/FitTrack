@@ -2,7 +2,9 @@
 
 public class BookingException : Exception
 {
-    public BookingException(string message) : base(message)
+    public ErrorKind Kind { get; }
+    public BookingException(string message, ErrorKind kind) : base(message)
     {
+        Kind = kind;
     }
 }
